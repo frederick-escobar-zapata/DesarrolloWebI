@@ -22,15 +22,16 @@ class RutaController extends Controller
             $proyecto->monto = $monto;           
             $proyectos[] = $proyecto->toArray();            
             session(['proyectos' => $proyectos]);            
-            return response()->json([
-                'mensaje' => 'Proyecto agregado exitosamente',
-                'proyecto' => $proyecto
-            ], 201);
+            return view('proyectos.agregar', [
+                'proyecto' => $proyecto,
+                'total' => count($proyectos)
+            ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Error al agregar proyecto',
-                'mensaje' => $e->getMessage()
-            ], 500);
+            return view('proyectos.agregar', [
+                'proyecto' => null,
+                'total' => 0,
+                'error' => 'Error al agregar proyecto: ' . $e->getMessage()
+            ]);
         }
     }
 
@@ -42,18 +43,20 @@ class RutaController extends Controller
             $proyectosData = session('proyectos',[]);
             $proyectos = collect($proyectosData)->map(function ($data) {
                 $proyecto = new Proyecto();
-                $proyecto->fill($data);                
+                $proyecto->fill($data);
+                $proyecto->id = $data['id'];
                 return $proyecto;
-            });            
-            return response()->json([
+            });                      
+            return view('proyectos.mostrar', [
                 'proyectos' => $proyectos,
                 'total' => $proyectos->count()
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Error al obtener proyectos',
-                'mensaje' => $e->getMessage()
-            ], 500);
+            return view('proyectos.mostrar', [
+                'proyectos' => collect([]),
+                'total' => 0,
+                'error' => 'Error al obtener proyectos: ' . $e->getMessage()
+            ]);
         }
     }
 
@@ -62,19 +65,35 @@ class RutaController extends Controller
     public function ctrlerEliminarProyectoId($id){
         try {
             $proyectos = session('proyectos', []);
-            $proyectos = collect($proyectos)->filter(function ($proyecto) use ($id) {
-                return $proyecto['id'] != $id;
+            $proyectoEliminado = collect($proyectos)->firstWhere('id', $id);
+            
+            if (!$proyectoEliminado) {
+                return view('proyectos.eliminarid', [
+                    'proyecto' => null,
+                    'error' => 'Proyecto no encontrado'
+                ]);
+            }
+            
+            // Crear instancia del modelo del proyecto eliminado
+            $proyecto = new Proyecto();
+            $proyecto->fill($proyectoEliminado);
+            $proyecto->id = $proyectoEliminado['id'];
+            
+            // Eliminar el proyecto del array
+            $proyectos = collect($proyectos)->filter(function ($p) use ($id) {
+                return $p['id'] != $id;
             })->values()->all();            
-            session(['proyectos' => $proyectos]);            
-            return response()->json([
-                'mensaje' => 'Proyecto eliminado exitosamente',
+            session(['proyectos' => $proyectos]);
+            
+            return view('proyectos.eliminarid', [
+                'proyecto' => $proyecto,
                 'total' => count($proyectos)
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Error al eliminar proyecto',
-                'mensaje' => $e->getMessage()
-            ], 500);
+            return view('proyectos.eliminarid', [
+                'proyecto' => null,
+                'error' => 'Error al eliminar proyecto: ' . $e->getMessage()
+            ]);
         }
     }
 
@@ -83,27 +102,50 @@ class RutaController extends Controller
      public function ctrlerActualizarProyecto($id, $nombre, $fecha_inicio, $estado, $responsable, $monto){
         try {
             $proyectos = session('proyectos', []);
-            $proyecto = collect($proyectos)->firstWhere('id', $id);
+            $proyectoOriginal = collect($proyectos)->firstWhere('id', $id);
             
-            if (!$proyecto) {
-                return response()->json(['error' => 'Proyecto no encontrado'], 404);
+            if (!$proyectoOriginal) {
+                return view('proyectos.actualizarid', [
+                    'proyectoAntes' => null,
+                    'proyectoDespues' => null,
+                    'error' => 'Proyecto no encontrado'
+                ]);
             }
 
-            $proyecto['nombre'] = $nombre;
-            $proyecto['fecha_inicio'] = $fecha_inicio;
-            $proyecto['estado'] = $estado;
-            $proyecto['responsable'] = $responsable;
-            $proyecto['monto'] = $monto;
+            // Crear instancia del proyecto antes de actualizar
+            $proyectoAntes = new Proyecto();
+            $proyectoAntes->fill($proyectoOriginal);
+            $proyectoAntes->id = $proyectoOriginal['id'];
 
-            session(['proyectos' => collect($proyectos)->map(function ($p) use ($proyecto) {
-                return $p['id'] == $proyecto['id'] ? $proyecto : $p;
+            // Actualizar los datos
+            $proyectoActualizado = $proyectoOriginal;
+            $proyectoActualizado['nombre'] = $nombre;
+            $proyectoActualizado['fecha_inicio'] = $fecha_inicio;
+            $proyectoActualizado['estado'] = $estado;
+            $proyectoActualizado['responsable'] = $responsable;
+            $proyectoActualizado['monto'] = $monto;
+
+            // Crear instancia del proyecto después de actualizar
+            $proyectoDespues = new Proyecto();
+            $proyectoDespues->fill($proyectoActualizado);
+            $proyectoDespues->id = $proyectoActualizado['id'];
+
+            // Guardar en sesión
+            session(['proyectos' => collect($proyectos)->map(function ($p) use ($proyectoActualizado) {
+                return $p['id'] == $proyectoActualizado['id'] ? $proyectoActualizado : $p;
             })->values()->all()]);
 
-            return response()->json(['mensaje' => 'Proyecto actualizado exitosamente']);
+            return view('proyectos.actualizarid', [
+                'proyectoAntes' => $proyectoAntes,
+                'proyectoDespues' => $proyectoDespues
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al actualizar proyecto', 'mensaje' => $e->getMessage()], 500);
+            return view('proyectos.actualizarid', [
+                'proyectoAntes' => null,
+                'proyectoDespues' => null,
+                'error' => 'Error al actualizar proyecto: ' . $e->getMessage()
+            ]);
         }
-        
     }
 
      //-------------   5 .- Mostrar los proyectos por ID - listo-----------------------
@@ -114,26 +156,25 @@ class RutaController extends Controller
             $proyecto = collect($proyectos)->firstWhere('id', $id);
             
             if (!$proyecto) {
-                return response()->json([
+                return view('proyectos.mostrarid', [
+                    'proyecto' => null,
                     'error' => 'Proyecto no encontrado'
-                ], 404);
+                ]);
             }                    
-            $proyectos = new Proyecto();
-            $proyectos->fill($proyecto);
-            $proyectos->id = $proyecto['id'];
+            $proyectoModelo = new Proyecto();
+            $proyectoModelo->fill($proyecto);
+            $proyectoModelo->id = $proyecto['id'];
             
-            return response()->json([
-                'mensaje' => 'Proyecto encontrado exitosamente',
-                'proyecto' => $proyectos
+            return view('proyectos.mostrarid', [
+                'proyecto' => $proyectoModelo
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Error al mostrar proyecto',
-                'mensaje' => $e->getMessage()
-            ], 500);
+            return view('proyectos.mostrarid', [
+                'proyecto' => null,
+                'error' => 'Error al mostrar proyecto: ' . $e->getMessage()
+            ]);
         }
     }
-
-    
 }
+
 
