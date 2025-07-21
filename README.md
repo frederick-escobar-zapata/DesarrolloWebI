@@ -65,29 +65,28 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-# Sistema de Gestión de Proyectos - Evaluación 1
+# Evaluación 1 - Sistema de Gestión de Proyectos
 
 ## Descripción
-Sistema CRUD completo para gestión de proyectos desarrollado en Laravel, con componente UF integrado.
+Sistema de gestión de proyectos desarrollado en Laravel que permite realizar operaciones CRUD sobre proyectos utilizando almacenamiento en sesión.
 
 ## Características
-- ✅ CRUD completo de proyectos
-- ✅ Almacenamiento en sesión
-- ✅ Vistas web con Bootstrap
-- ✅ API REST endpoints
-- ✅ Componente UF (Unidad de Fomento) reutilizable
-- ✅ Interfaz responsive
+- ✅ Listar todos los proyectos
+- ✅ Agregar nuevos proyectos
+- ✅ Eliminar proyectos por ID
+- ✅ Actualizar proyectos por ID
+- ✅ Mostrar proyecto específico por ID
+- 🔄 Componente UF (Unidad de Fomento) con API externa
 
 ## Tecnologías
 - PHP 8.x
 - Laravel 10.x
-- Bootstrap 5.3
-- API externa mindicador.cl
-- Session storage
+- Almacenamiento en sesión (sin base de datos)
+- API REST
 
 ## Instalación
 
-1. Clonar repositorio:
+1. Clonar el repositorio:
 ```bash
 git clone https://github.com/tu-usuario/Evaluacion1.git
 cd Evaluacion1
@@ -98,32 +97,33 @@ cd Evaluacion1
 composer install
 ```
 
-3. Configurar entorno:
+3. Configurar archivo de entorno:
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
-4. Ejecutar servidor:
+4. Ejecutar servidor de desarrollo:
 ```bash
 php artisan serve
 ```
 
-## Funcionalidades
+## Rutas API
 
-### API Endpoints
-- `GET /MostrarProyectos` - Listar proyectos
-- `GET /AgregarProyecto/{id}/{nombre}/{fecha}/{estado}/{responsable}/{monto}` - Agregar
-- `GET /EliminarProyectoId/{id}` - Eliminar
-- `GET /ActualizarProyectoId/{id}/{nombre}/{fecha}/{estado}/{responsable}/{monto}` - Actualizar
-- `GET /MostrarProyectosId/{id}` - Ver específico
-- `GET /api/uf` - Obtener valor UF actual
+### Web Routes
+- `GET /MostrarProyectos` - Listar todos los proyectos
+- `GET /AgregarProyecto/{id}/{nombre}/{fecha_inicio}/{estado}/{responsable}/{monto}` - Agregar proyecto
+- `GET /EliminarProyectoId/{id}` - Eliminar proyecto por ID
+- `GET /ActualizarProyectoId/{id}/{nombre}/{fecha_inicio}/{estado}/{responsable}/{monto}` - Actualizar proyecto
+- `GET /MostrarProyectosId/{id}` - Mostrar proyecto por ID
 
-### Vistas Web
-- `/` - Dashboard principal con componente UF
-- `/MostrarProyectos` - Lista de proyectos
-- `/proyectos` - Vista alternativa de proyectos
+### API Routes
+- `GET /api/proyectos` - Listar proyectos
+- `POST /api/proyectos` - Crear proyecto
+- `PUT /api/proyectos/{id}` - Actualizar proyecto
+- `DELETE /api/proyectos/{id}` - Eliminar proyecto
+- `GET /api/proyectos/{id}` - Obtener proyecto por ID
 
-## Estructura
-```
+## Ejemplos de Uso
+
 ### Agregar Proyecto

@@ -12,8 +12,11 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="bi bi-kanban"></i> Sistema  de Gestion de Proyectos         
-            <a>                    
+                <i class="bi bi-kanban"></i> Sistema de Gestión de Proyectos         
+            </a>      
+            <div class="navbar-text text-light">
+                @include('components.uf')
+            </div>             
         </div>
     </nav>
 

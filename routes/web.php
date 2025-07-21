@@ -19,6 +19,6 @@ Route::get('EliminarProyectoId/{id}', [App\Http\Controllers\RutaController::clas
 // 4 Actualizar proyecto por su id -listo
 Route::get('/ActualizarProyectoId/{id}/{nombre}/{fecha_inicio}/{estado}/{responsable}/{monto}', [App\Http\Controllers\RutaController::class, 'ctrlerActualizarProyecto']);
 
-// 3. mostrar proyecto por su Id -listo
+// 5. mostrar proyecto por su Id -listo
 Route::get('/MostrarProyectosId/{id}', [App\Http\Controllers\RutaController::class, 'ctrlerMostrarProyectoId']);
 
