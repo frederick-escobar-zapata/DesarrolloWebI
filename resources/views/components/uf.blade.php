@@ -3,7 +3,6 @@
     UF: 
     <strong id="uf-valor">Cargando...</strong>
 </span>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     cargarUF();

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RutaController;
+use App\Http\Controllers\AutenticacionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,4 +22,7 @@ Route::get('/ActualizarProyectoId/{id}/{nombre}/{fecha_inicio}/{estado}/{respons
 
 // 5. mostrar proyecto por su Id -listo
 Route::get('/MostrarProyectosId/{id}', [App\Http\Controllers\RutaController::class, 'ctrlerMostrarProyectoId']);
+
+Route::get('/login', [AutenticacionController::class, 'FormularioLogin']);
+Route::get('/registro', [AutenticacionController::class, 'FormularioRegistro']);
 
